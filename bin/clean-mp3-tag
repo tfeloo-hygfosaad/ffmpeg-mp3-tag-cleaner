@@ -17,13 +17,14 @@ for arg in "$@"; do
 done
 
 # Exact removable standalone bracket values
-REMOVE_MIXES=(
+REMOVE_FULL_BRACKETS=(
   "Original Mix"
   "Album Mix"
   "Main Mix"
   "Original Album Mix"
   "Radio Mix"
   "Radio Edit"
+  "Live"
 )
 
 # ==================
@@ -52,7 +53,7 @@ clean_title() {
   ')"
 
   # Remove exact standalone blocks
-  for item in "${REMOVE_MIXES[@]}"; do
+  for item in "${REMOVE_FULL_BRACKETS[@]}"; do
     s="$(printf '%s' "$s" | perl -CS -pe "s/\\s*\\(${item// /\\ }\\)//ig;")"
   done
 
