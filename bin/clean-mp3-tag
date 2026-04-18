@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ===== Config =====
+DRY_RUN=0
+ROOT="${1:-.}"
+
+# Exact removable standalone bracket values
+REMOVE_MIXES=(
+  "Original Mix"
+  "Album Mix"
+  "Main Mix"
+  "Original Album Mix"
+  "Radio Mix"
+  "Radio Edit"
+)
+
+# ==================
+
+trim() {
+  sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//; s/[[:space:]]{2,}/ /g'
+}
+
+clean_artist() {
+  local s="$1"
+
+  printf '%s' "$s" | perl -CS -pe '
+    s/\s+(feat\.?|featuring)\s+.*$//i;
+    s/\bvs\b/vs./ig;
+    s/\s{2,}/ /g;
+    s/^\s+|\s+$//g;
+  '
+}
+
+clean_title() {
+  local s="$1"
+
+  # Convert "(Artist Radio Edit/Mix)" => "(Artist Remix)"
+  s="$(printf '%s' "$s" | perl -CS -pe '
+    s/\(([^()]+?)\s+Radio\s+(Edit|Mix)\)/($1 Remix)/ig;
+  ')"
+
+  # Remove exact standalone blocks
+  for item in "${REMOVE_MIXES[@]}"; do
+    s="$(printf '%s' "$s" | perl -CS -pe "s/\\s*\\(${item// /\\ }\\)//ig;")"
+  done
+
+  printf '%s' "$s" | perl -CS -pe '
+    s/\s{2,}/ /g;
+    s/\s+\)/)/g;
+    s/\(\s+/\(/g;
+    s/^\s+|\s+$//g;
+  '
+}
+
+process_file() {
+  local file="$1"
+  local artist title new_artist new_title tmp
+
+  artist="$(ffprobe -v error -show_entries format_tags=artist -of default=nw=1:nk=1 "$file" || true)"
+  title="$(ffprobe -v error -show_entries format_tags=title  -of default=nw=1:nk=1 "$file" || true)"
+
+  new_artist="$(clean_artist "$artist")"
+  new_title="$(clean_title "$title")"
+
+  if [[ "$artist" == "$new_artist" && "$title" == "$new_title" ]]; then
+    return
+  fi
+
+  echo "Updating: $file"
+  echo "  Artist: [$artist] -> [$new_artist]"
+  echo "  Title : [$title] -> [$new_title]"
+
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    return
+  fi
+
+  tmp="${file}.tmp.mp3"
+
+  ffmpeg -v error -y \
+    -i "$file" \
+    -map 0 \
+    -c copy \
+    -metadata artist="$new_artist" \
+    -metadata title="$new_title" \
+    "$tmp"
+
+  mv -f "$tmp" "$file"
+}
+
+export -f clean_artist clean_title process_file
+
+find "$ROOT" -type f \( -iname '*.mp3' \) -print0 |
+while IFS= read -r -d '' file; do
+  process_file "$file"
+done
