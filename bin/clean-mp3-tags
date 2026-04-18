@@ -80,8 +80,14 @@ process_file() {
   fi
 
   echo "Updating: $file"
-  echo "  Artist: [$artist] -> [$new_artist]"
-  echo "  Title : [$title] -> [$new_title]"
+
+  if [[ "$artist" != "$new_artist" ]]; then
+    echo "  Artist: [$artist] -> [$new_artist]"
+  fi
+
+  if [[ "$title" != "$new_title" ]]; then
+    echo "  Title : [$title] -> [$new_title]"
+  fi
 
   if [[ "$DRY_RUN" -eq 1 ]]; then
     return
