@@ -3,7 +3,18 @@ set -euo pipefail
 
 # ===== Config =====
 DRY_RUN=0
-ROOT="${1:-.}"
+ROOT="."
+
+for arg in "$@"; do
+  case "$arg" in
+    --dry-run)
+      DRY_RUN=1
+      ;;
+    *)
+      ROOT="$arg"
+      ;;
+  esac
+done
 
 # Exact removable standalone bracket values
 REMOVE_MIXES=(
