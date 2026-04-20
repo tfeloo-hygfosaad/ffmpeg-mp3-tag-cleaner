@@ -18,13 +18,16 @@ done
 
 # Exact removable standalone bracket values
 REMOVE_FULL_BRACKETS=(
-  "Original Mix"
   "Album Mix"
+  "Album Version"
+  "Album Version Edited"
+  "Live"
+  "Main"
   "Main Mix"
   "Original Album Mix"
-  "Radio Mix"
+  "Original Mix"
   "Radio Edit"
-  "Live"
+  "Radio Mix"
 )
 
 # ==================
