@@ -18,6 +18,7 @@ done
 
 # Exact removable standalone bracket values
 REMOVE_FULL_BRACKETS=(
+  "12 Remix"
   "Album Mix"
   "Album Version"
   "Album Version Edited"
@@ -28,12 +29,22 @@ REMOVE_FULL_BRACKETS=(
   "Main"
   "Main Mix"
   "Maxi Cut"
+  "Maxi Version"
   "Mix"
   "Original Album Mix"
+  "Original Club Mix"
+  "Original Extended"
   "Original Mix"
+  "Original Remix"
   "Radio Edit"
+  "Radio Edit Long"
+  "Radio Edit Short"
   "Radio Mix"
+  "Radio Version"
+  "Remix Maxi"
   "Single Cut"
+  "Single Edit"
+  "Single Version"
   "Video Cut"
   "Video Edit"
 )
@@ -43,6 +54,7 @@ NORMALIZE_SUFFIXES=(
   "Extended Mix|Mix"
   "Short Mix|Mix"
   "Remix Edit|Remix"
+  "Rmx|Remix"
 )
 
 # ==================
