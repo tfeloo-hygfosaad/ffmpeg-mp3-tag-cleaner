@@ -19,10 +19,12 @@ done
 # Exact removable standalone bracket values
 REMOVE_FULL_BRACKETS=(
   "12 Remix"
+  "2003 Radio Cut"
   "Album Mix"
   "Album Version"
   "Album Version Edited"
   "Dance Edit"
+  "Euto Cut"
   "Extended Mix"
   "Less Mix"
   "Live"
@@ -36,6 +38,7 @@ REMOVE_FULL_BRACKETS=(
   "Original Extended"
   "Original Mix"
   "Original Remix"
+  "Radio Cut"
   "Radio Edit"
   "Radio Edit Long"
   "Radio Edit Short"
@@ -52,9 +55,12 @@ REMOVE_FULL_BRACKETS=(
 # Remove unwanted Mix/Remix qualifiers
 NORMALIZE_SUFFIXES=(
   "Extended Mix|Mix"
-  "Short Mix|Mix"
+  "Mix Cut|Mix"
+  "Radio Cut|Mix"
+  "Remix Cut|Remix"
   "Remix Edit|Remix"
   "Rmx|Remix"
+  "Short Mix|Mix"
 )
 
 # ==================
