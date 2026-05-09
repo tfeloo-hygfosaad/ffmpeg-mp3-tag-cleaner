@@ -28,6 +28,7 @@ REMOVE_FULL_BRACKETS=(
   "Main"
   "Main Mix"
   "Maxi Cut"
+  "Mix"
   "Original Album Mix"
   "Original Mix"
   "Radio Edit"
@@ -37,10 +38,11 @@ REMOVE_FULL_BRACKETS=(
   "Video Edit"
 )
 
-# Replace "<value> Mix)" => "Mix)"
-NORMALIZE_TO_MIX=(
-  "Extended"
-  "Short"
+# Remove unwanted Mix/Remix qualifiers
+NORMALIZE_SUFFIXES=(
+  "Extended Mix|Mix"
+  "Short Mix|Mix"
+  "Remix Edit|Remix"
 )
 
 # ==================
@@ -63,19 +65,25 @@ clean_artist() {
 clean_title() {
   local s="$1"
 
-  # Remove exact standalone blocks
+  # 1. Remove standalone tags
   for item in "${REMOVE_FULL_BRACKETS[@]}"; do
     s="$(printf '%s' "$s" | perl -CS -pe "s/\\s*\\(${item// /\\ }\\)//ig;")"
   done
 
+  # 2. Pattern-based transforms
   # Convert "(Artist Radio Edit/Mix)" => "(Artist Remix)"
   s="$(printf '%s' "$s" | perl -CS -pe '
     s/\(([^()]+?)\s+Radio\s+(Edit|Mix)\)/($1 Remix)/ig;
   ')"
 
-  # Replace "<value> Mix)" => "Mix)"
-  for item in "${NORMALIZE_TO_MIX[@]}"; do
-    s="$(printf '%s' "$s" | perl -CS -pe "s/${item// /\\\\ }\\ Mix\\)/Mix)/ig;")"
+  # 3. Simple suffix normalizations
+  # Eg. replace "<value> Mix)" => "Mix)"
+  for rule in "${NORMALIZE_SUFFIXES[@]}"; do
+    from="${rule%%|*}"
+    to="${rule##*|}"
+
+    s="$(printf '%s' "$s" | perl -CS -pe \
+      "s/${from// /\\\\ }\\)/${to})/ig;")"
   done
 
   printf '%s' "$s" | perl -CS -pe '
