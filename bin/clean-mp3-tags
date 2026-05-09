@@ -21,13 +21,26 @@ REMOVE_FULL_BRACKETS=(
   "Album Mix"
   "Album Version"
   "Album Version Edited"
+  "Dance Edit"
+  "Extended Mix"
+  "Less Mix"
   "Live"
   "Main"
   "Main Mix"
+  "Maxi Cut"
   "Original Album Mix"
   "Original Mix"
   "Radio Edit"
   "Radio Mix"
+  "Single Cut"
+  "Video Cut"
+  "Video Edit"
+)
+
+# Replace "<value> Mix)" => "Mix)"
+NORMALIZE_TO_MIX=(
+  "Extended"
+  "Short"
 )
 
 # ==================
@@ -50,14 +63,19 @@ clean_artist() {
 clean_title() {
   local s="$1"
 
+  # Remove exact standalone blocks
+  for item in "${REMOVE_FULL_BRACKETS[@]}"; do
+    s="$(printf '%s' "$s" | perl -CS -pe "s/\\s*\\(${item// /\\ }\\)//ig;")"
+  done
+
   # Convert "(Artist Radio Edit/Mix)" => "(Artist Remix)"
   s="$(printf '%s' "$s" | perl -CS -pe '
     s/\(([^()]+?)\s+Radio\s+(Edit|Mix)\)/($1 Remix)/ig;
   ')"
 
-  # Remove exact standalone blocks
-  for item in "${REMOVE_FULL_BRACKETS[@]}"; do
-    s="$(printf '%s' "$s" | perl -CS -pe "s/\\s*\\(${item// /\\ }\\)//ig;")"
+  # Replace "<value> Mix)" => "Mix)"
+  for item in "${NORMALIZE_TO_MIX[@]}"; do
+    s="$(printf '%s' "$s" | perl -CS -pe "s/${item// /\\\\ }\\ Mix\\)/Mix)/ig;")"
   done
 
   printf '%s' "$s" | perl -CS -pe '
