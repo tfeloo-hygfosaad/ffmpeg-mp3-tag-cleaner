@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../bin" && pwd)"
-TMP_DIR="$ROOT_DIR/tests/tmp"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SCRIPT="$ROOT_DIR/bin/clean-mp3-tags"
+TMP_DIR="$ROOT_DIR/tmp"
 
 mkdir -p "$TMP_DIR"
 rm -f "$TMP_DIR"/*.mp3
