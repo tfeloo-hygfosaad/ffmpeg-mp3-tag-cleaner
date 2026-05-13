@@ -1,0 +1,111 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+TMP_DIR="$ROOT_DIR/tests/tmp"
+
+mkdir -p "$TMP_DIR"
+rm -f "$TMP_DIR"/*.mp3
+
+create_mp3() {
+  local file="$1"
+  local artist="$2"
+  local title="$3"
+
+  ffmpeg -v error \
+    -f lavfi -i anullsrc=r=44100:cl=mono \
+    -t 1 \
+    -q:a 9 \
+    -acodec libmp3lame \
+    -metadata artist="$artist" \
+    -metadata title="$title" \
+    "$file"
+}
+
+get_tag() {
+  local file="$1"
+  local field="$2"
+
+  ffprobe -v error \
+    -show_entries "format_tags=${field}" \
+    -of default=nw=1:nk=1 \
+    "$file"
+}
+
+test_case() {
+  local name="$1"
+  local artist_in="$2"
+  local title_in="$3"
+  local artist_expected="$4"
+  local title_expected="$5"
+
+  local file="$TMP_DIR/${name}.mp3"
+
+  create_mp3 "$file" "$artist_in" "$title_in"
+
+  "$ROOT_DIR/clean-mp3-tags" "$file"
+
+  local artist_actual
+  local title_actual
+
+  artist_actual="$(get_tag "$file" artist)"
+  title_actual="$(get_tag "$file" title)"
+
+  if [[ "$artist_actual" != "$artist_expected" ]]; then
+    echo "FAIL artist: $name"
+    echo "expected: [$artist_expected]"
+    echo "actual:   [$artist_actual]"
+    exit 1
+  fi
+
+  if [[ "$title_actual" != "$title_expected" ]]; then
+    echo "FAIL title: $name"
+    echo "expected: [$title_expected]"
+    echo "actual:   [$title_actual]"
+    exit 1
+  fi
+
+  echo "PASS: $name"
+}
+
+# ====================
+# TESTS
+# ====================
+
+test_case \
+  "radio-cut" \
+  "Artist" \
+  "Riddim (Rico Uno Vox Radio Cut)" \
+  "Artist" \
+  "Riddim (Rico Uno Vox Mix)"
+
+test_case \
+  "extended-mix" \
+  "Artist" \
+  "Track (Cool Extended Mix)" \
+  "Artist" \
+  "Track (Cool Mix)"
+
+test_case \
+  "artist-vs" \
+  "A vs B" \
+  "Track" \
+  "A vs. B" \
+  "Track"
+
+test_case \
+  "artist-vs-idempotent" \
+  "A vs. B" \
+  "Track" \
+  "A vs. B" \
+  "Track"
+
+test_case \
+  "feat-removal" \
+  "Artist" \
+  "Track (feat. Someone)" \
+  "Artist" \
+  "Track"
+
+echo
+echo "All tests passed."
