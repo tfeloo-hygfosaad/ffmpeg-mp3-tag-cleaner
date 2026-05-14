@@ -54,6 +54,7 @@ test_case() {
 
   if [[ "$artist_actual" != "$artist_expected" ]]; then
     echo "FAIL artist: $name"
+    echo "initial:  [$artist_in]"
     echo "expected: [$artist_expected]"
     echo "actual:   [$artist_actual]"
     exit 1
@@ -61,6 +62,7 @@ test_case() {
 
   if [[ "$title_actual" != "$title_expected" ]]; then
     echo "FAIL title: $name"
+    echo "initial:  [$title_in]"
     echo "expected: [$title_expected]"
     echo "actual:   [$title_actual]"
     exit 1
@@ -74,35 +76,35 @@ test_case() {
 # ====================
 
 test_case \
-  "radio-cut" \
-  "Artist" \
-  "Riddim (Rico Uno Vox Radio Cut)" \
-  "Artist" \
-  "Riddim (Rico Uno Vox Mix)"
-
-test_case \
-  "extended-mix" \
-  "Artist" \
-  "Track (Cool Extended Mix)" \
-  "Artist" \
-  "Track (Cool Mix)"
-
-test_case \
-  "artist-vs" \
+  "ARTIST ::: vs => vs." \
   "A vs B" \
   "Track" \
   "A vs. B" \
   "Track"
 
 test_case \
-  "artist-vs-idempotent" \
+  "ARTIST ::: vs. => vs." \
   "A vs. B" \
   "Track" \
   "A vs. B" \
   "Track"
 
 test_case \
-  "feat-removal" \
+  "TITLE ::: Radio Cut) => Mix)" \
+  "Artist" \
+  "Riddim (Rico Uno Vox Radio Cut)" \
+  "Artist" \
+  "Riddim (Rico Uno Vox Mix)"
+
+test_case \
+  "TITLE ::: Extended Mix) => Mix)" \
+  "Artist" \
+  "Track (Cool Extended Mix)" \
+  "Artist" \
+  "Track (Cool Mix)"
+
+test_case \
+  "TITLE ::: (feat. Someone) => ''" \
   "Artist" \
   "Track (feat. Someone)" \
   "Artist" \
