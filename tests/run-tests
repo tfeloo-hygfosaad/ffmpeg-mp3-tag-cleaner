@@ -44,7 +44,7 @@ test_case() {
 
   create_mp3 "$file" "$artist_in" "$title_in"
 
-  "$ROOT_DIR/clean-mp3-tags" "$file"
+  "$SCRIPT" "$file"
 
   local artist_actual
   local title_actual
