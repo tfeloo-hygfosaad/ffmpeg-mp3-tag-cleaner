@@ -126,8 +126,12 @@ clean_title() {
     from="${rule%%|*}"
     to="${rule##*|}"
 
-    s="$(printf '%s' "$s" | perl -CS -pe \
-      "s/${from// /\\\\ }\\)/${to})/ig;")"
+    s="$(
+      printf '%s' "$s" |
+      FROM="$from" TO="$to" perl -CS -pe '
+        s/\Q$ENV{FROM}\E\)/$ENV{TO})/ig;
+      '
+    )"
   done
 
   printf '%s' "$s" | perl -CS -pe '
