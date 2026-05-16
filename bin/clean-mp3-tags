@@ -3,12 +3,16 @@ set -euo pipefail
 
 # ===== Config =====
 DRY_RUN=0
+QUIET=0
 ROOT="."
 
 for arg in "$@"; do
   case "$arg" in
     --dry-run)
       DRY_RUN=1
+      ;;
+    --quiet|--test-mode)
+      QUIET=1
       ;;
     *)
       ROOT="$arg"
@@ -84,6 +88,12 @@ trim() {
   sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//; s/[[:space:]]{2,}/ /g'
 }
 
+log() {
+  if [[ "$QUIET" -eq 0 ]]; then
+    echo "$@"
+  fi
+}
+
 clean_artist() {
   local s="$1"
 
@@ -156,14 +166,14 @@ process_file() {
     return
   fi
 
-  echo "Updating: $file"
+  log "Updating: $file"
 
   if [[ "$artist" != "$new_artist" ]]; then
-    echo "  Artist: [$artist] -> [$new_artist]"
+    log "  Artist: [$artist] -> [$new_artist]"
   fi
 
   if [[ "$title" != "$new_title" ]]; then
-    echo "  Title : [$title] -> [$new_title]"
+    log "  Title : [$title] -> [$new_title]"
   fi
 
   if [[ "$DRY_RUN" -eq 1 ]]; then
